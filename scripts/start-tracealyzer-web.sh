@@ -145,30 +145,56 @@ prompt_license_key_if_missing() {
 
 write_session_launcher() {
   local tz_dir="$1"
+
   [[ -x "${tz_dir}/launch-tz.sh" ]] || die "Could not find ${tz_dir}/launch-tz.sh"
 
-  cat > "${SESSION_LAUNCHER}" <<EOF2
+  cat > "${SESSION_LAUNCHER}" <<EOF
 #!/usr/bin/env bash
-set -euo pipefail
+set -u
 
 TZ_DIR="${tz_dir}"
 LICENSE_FILE="${LICENSE_FILE}"
 LICENSE_DONE_FILE="${LICENSE_DONE_FILE}"
+LOG_FILE="${CONFIG_DIR}/license.log"
 
-cd "\${TZ_DIR}"
+cd "\${TZ_DIR}" || exit 1
+
+echo "==== \$(date) ====" >> "\${LOG_FILE}"
+echo "Starting session launcher in \${TZ_DIR}" >> "\${LOG_FILE}"
 
 if [[ ! -f "\${LICENSE_DONE_FILE}" ]]; then
+  echo "No activation marker found. Trying license activation..." >> "\${LOG_FILE}"
+
   if [[ -f "\${LICENSE_FILE}" && -s "\${LICENSE_FILE}" ]]; then
     LICENSE_KEY="\$(tr -d '\r\n' < "\${LICENSE_FILE}")"
+
     if [[ -n "\${LICENSE_KEY}" ]]; then
-      ./launch-tz.sh /license -k "\${LICENSE_KEY}" || true
-      touch "\${LICENSE_DONE_FILE}"
+      ./launch-tz.sh /license -k "\${LICENSE_KEY}"
+      rc=\$?
+
+      echo "License activation exit code: \$rc" >> "\${LOG_FILE}"
+
+      if [[ \$rc -eq 0 ]]; then
+        touch "\${LICENSE_DONE_FILE}"
+        echo "License activation marked as successful." >> "\${LOG_FILE}"
+        sleep 2
+      else
+        echo "License activation failed. Marker file not created." >> "\${LOG_FILE}"
+      fi
+    else
+      echo "License file exists but is empty after trimming." >> "\${LOG_FILE}"
     fi
+  else
+    echo "License file missing or empty." >> "\${LOG_FILE}"
   fi
+else
+  echo "Activation marker already exists. Skipping activation." >> "\${LOG_FILE}"
 fi
 
+echo "Launching Tracealyzer GUI..." >> "\${LOG_FILE}"
 exec ./launch-tz.sh
-EOF2
+EOF
+
   chmod +x "${SESSION_LAUNCHER}"
   log "Created the session launcher script."
 }
