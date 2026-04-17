@@ -19,5 +19,6 @@
     }
   },
   "postCreateCommand": "chmod +x scripts/start-tracealyzer-web.sh || true",
-  "remoteUser": "codespace"
+  "remoteUser": "vscode",
+  "containerUser": "vscode"
 }
