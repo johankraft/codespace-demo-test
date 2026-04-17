@@ -2,7 +2,7 @@
 set -euo pipefail
 
 DISPLAY_NUM="${DISPLAY_NUM:-1}"
-GEOMETRY="${GEOMETRY:-1280x800}"
+GEOMETRY="${GEOMETRY:-1900x900}"
 DEPTH="${DEPTH:-24}"
 VNC_PORT=$((5900 + DISPLAY_NUM))
 NOVNC_PORT="${NOVNC_PORT:-6080}"
@@ -63,12 +63,20 @@ XEOF
 
 prompt_tz_url() {
   local url=""
+  local default_url="https://download.tracealyzer.io/Tracealyzer-4.11.1-linux-standalone-x86-64.tgz"
+
   echo >&2
   echo "Enter the URL to the Tracealyzer .tgz package." >&2
-  echo "Example: https://.../Tracealyzer-4.11.1-linux-standalone-x86-64.tgz" >&2
+  echo "Default (press Enter to accept): ${default_url}" >&2
   printf "> " >&2
+
   IFS= read -r url
-  [[ -n "${url}" ]] || die "No URL was entered."
+
+  if [[ -z "${url}" ]]; then
+    url="${default_url}"
+    echo "Using default URL: ${url}" >&2
+  fi
+
   printf '%s\n' "${url}"
 }
 
