@@ -322,31 +322,18 @@ EOF2
 
   if [[ -n "${guessed_base}" ]]; then
     cat <<EOF2
-Likely direct URL:
-  ${full_url}
-
-Lightweight client:
-  ${lite_url}
+Tracealyzer is now available at ${full_url}
+Just enter the vnc password you just provided.
 
 EOF2
   else
     cat <<EOF2
 The exact published URL could not be determined automatically.
-Please open port ${NOVNC_PORT} from the PORTS tab.
+Please open the link for port ${NOVNC_PORT} from the PORTS tab. In the directory listing, select vnc.html.
 
 EOF2
   fi
 
-  cat <<EOF2
-Notes:
-  - This script always restarts the VNC server and the noVNC web interface when run.
-  - noVNC log file: ${STATE_DIR}/novnc.log
-
-To stop everything:
-  vncserver -kill :${DISPLAY_NUM}
-  kill \$(cat "${NOVNC_PID_FILE}" 2>/dev/null) 2>/dev/null || true
-
-EOF2
 }
 
 main() {
