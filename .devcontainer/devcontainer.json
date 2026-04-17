@@ -1,0 +1,23 @@
+{
+  "name": "Tracealyzer Web Demo",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "forwardPorts": [6080],
+  "portsAttributes": {
+    "6080": {
+      "label": "Tracealyzer noVNC",
+      "onAutoForward": "notify",
+      "protocol": "http"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      }
+    }
+  },
+  "postCreateCommand": "chmod +x scripts/start-tracealyzer-web.sh || true",
+  "remoteUser": "codespace"
+}
